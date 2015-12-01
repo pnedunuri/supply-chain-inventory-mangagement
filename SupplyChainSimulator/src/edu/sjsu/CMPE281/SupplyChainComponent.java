@@ -40,7 +40,7 @@ public class SupplyChainComponent implements Runnable
 		return controlNodes;
 	}
 
-	public Sensor getSensorId(long sensorId)
+	public Sensor getSensorId(String sensorId)
 	{
 		Sensor sensor = null;
 		for (int cIndex = 0; cIndex < noOfControlNodes; cIndex++)
@@ -60,17 +60,20 @@ public class SupplyChainComponent implements Runnable
 		currTimeMillis = System.currentTimeMillis();
 		
 		// initial Server Components
-		(transmitter = new Transmitter()).init();
-		(receiver = new Receiver()).init();
+		transmitter = new Transmitter();
+		receiver = new Receiver();
 		
 		// initialize control nodes
 		controlNodes = new ControlNode[noOfControlNodes];
 		for (int cIndex = 0; cIndex < noOfControlNodes; cIndex++)
 		{
 			controlNodes[cIndex] = new ControlNode();
-			controlNodes[cIndex].init();
+			controlNodes[cIndex].init(cIndex);
 		}
-
+		// initializing server components
+		transmitter.init();
+		receiver.init();
+		
 		while (true)
 		{
 			prevTimeMillis = currTimeMillis;

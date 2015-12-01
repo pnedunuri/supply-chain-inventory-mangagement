@@ -6,30 +6,33 @@ public class SensorNode
 {
 	private Sensor[] sensors;
 	private int noOfSensors = Constants.NO_OF_SENSORS / Constants.NO_OF_SENSOR_NODES;
-	private long sensoreNodeId = -1;
-	
-	public void init()
+	private String sensoreNodeId = null;
+	private ControlNode controlNode = null;
+
+	public void init(int sIndex, ControlNode cNode)
 	{
-		sensoreNodeId = System.currentTimeMillis();
+		controlNode = cNode;
+		int append = (int)(System.currentTimeMillis() % 10000) + sIndex;
+		sensoreNodeId = "SENSOR_NODE_" + append;
 		sensors = new Sensor[noOfSensors];
 		for (int index = 0; index < noOfSensors; index++)
 		{
 			sensors[index] = new Sensor();
-			sensors[index].init();
+			sensors[index].init(index + append, cNode);
 		}
 	}
-	
-	public long getSensorNodeId()
+
+	public String getSensorNodeId()
 	{
 		return sensoreNodeId;
 	}
-	
+
 	public Sensor[] getSensors()
 	{
 		return sensors;
 	}
 
-	public Sensor getSensorById(long sensorId)
+	public Sensor getSensorById(String sensorId)
 	{
 		for (int index = 0; index < noOfSensors; index++)
 		{

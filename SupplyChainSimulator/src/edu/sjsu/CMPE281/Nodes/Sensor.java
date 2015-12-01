@@ -1,16 +1,18 @@
 package edu.sjsu.CMPE281.Nodes;
 
-import java.sql.Timestamp;
 import java.util.Random;
 
 import edu.sjsu.CMPE281.Constants;
 
 public class Sensor
 {
+	private ControlNode controlNode = null;
+	
 	// sensor info
 	private int sensorType = -1;
-	private long sensorId = -1;
+	private String sensorId = null;
 	private String sensorInfo = null;
+	private long timeStamp = -1;
 
 	// latitude & longitude of truck
 	private float truckLocationLatitude = 0.0f;
@@ -32,10 +34,23 @@ public class Sensor
 
 	private Random r = new Random();
 	
-	public void init()
+	public void init(int index, ControlNode cNode)
 	{
-		sensorType = r.nextInt(Constants.TOTAL_NO_OF_SENSORS);
-		sensorId = System.currentTimeMillis();
+		controlNode = cNode;
+		
+		if (controlNode.isGPSSensorSet)
+		{
+			sensorType = r.nextInt(Constants.GPS_SENSOR);
+		} else
+		{
+			sensorType = Constants.GPS_SENSOR;
+			controlNode.isGPSSensorSet = true;
+		}
+		
+		sensorId = "SENSOR_" + ((System.currentTimeMillis() % 10000) + index);
+		
+		expectedSensorInfo = "" + sensorId;
+		threshold = 5;
 
 		// truck location init
 		// the below magic numbers are California's Latitude and Longitude
@@ -45,7 +60,7 @@ public class Sensor
 		truckSpeed = ((truckSpeed * sensorInfoUpdateInterval ) / Constants.SECOND_TO_MILLI);
 	}
 
-	public long getSensorId()
+	public String getSensorId()
 	{
 		return sensorId;
 	}
@@ -53,6 +68,11 @@ public class Sensor
 	public int getSensorType()
 	{
 		return sensorType;
+	}
+	
+	public long getTimeStamp()
+	{
+		return timeStamp;
 	}
 	
 	public void setUpdateInterval(int time)
@@ -88,23 +108,24 @@ public class Sensor
 		{
 			timer = time;
 
+			timeStamp = System.currentTimeMillis();
 			switch (sensorType)
 			{
 				case Constants.TEMPERATURE_SENSOR:
 				{
-					int currTemp = Integer.parseInt(expectedSensorInfo) + r.nextInt(threshold);
+					float currTemp = r.nextFloat() * 80;//Float.parseFloat(expectedSensorInfo) + r.nextFloat();
 					sensorInfo = correctInfoSwitch ? currTemp + "" : threshold + currTemp + "";
 				}
 					break;
 				case Constants.WEIGHT_SENSOR:
 				{
-					int currWeight = Integer.parseInt(expectedSensorInfo) + r.nextInt(threshold);
+					float currWeight = r.nextFloat() * 80; //Float.parseFloat(expectedSensorInfo) + r.nextFloat();
 					sensorInfo = correctInfoSwitch ? currWeight + "" : currWeight + threshold + "";
 				}
 					break;
 				case Constants.GPS_SENSOR:
 				{
-					sensorInfo = truckLocationLatitude + truckSpeed + ", " + truckLocationLongitude + truckSpeed;
+					sensorInfo = (truckLocationLatitude + truckSpeed) + ", " + (truckLocationLongitude + truckSpeed);
 				}
 					break;
 			}
